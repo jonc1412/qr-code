@@ -49,23 +49,31 @@ def encode_alphanumeric(text):
 def encode_byte(text, err_corr, mode):
     # Getting the DataFrame for the Character Capacity table for alphanumeric values
     # In the future, may expand to include other data types (e.g. numeric, binary, kanji)
-    file_path = 'AlphaNumericCharCapacity.csv'
-    df = pd.read_csv(file_path)
-    df = df.filter(items=['Version', err_corr])
+    alpha_capacity_file_path = "lookup_tables/alphanumeric_capacity.csv"
+    alpha_capacity_df = pd.read_csv(alpha_capacity_file_path)
+    alpha_capacity_df = alpha_capacity_df.filter(items=["Version", err_corr])
 
     char_length = len(text)
     
     # Finding the best QR code version for the text based on size
-    qr_version = df.loc[df[err_corr] >= char_length, "Version"].iloc[0]
+    qr_version = alpha_capacity_df.loc[alpha_capacity_df[err_corr] >= char_length, "Version"].iloc[0]
+
+    error_correction_file_path = "lookup_tables/error_correction.csv"
+    error_correction_df = pd.read_csv(error_correction_file_path)
+    total_data_codewords = error_correction_df[error_correction_df["Version and EC Level"] == f'{qr_version}-{err_corr}']["Data Codewords"].values[0]
+    total_bits = total_data_codewords * 8
 
     # The mode indicator for alphanumeric values
-    mode_indicator = {"Numeric" : "0001",
+    mode_indicator_dict = {"Numeric" : "0001",
                       "Alphanumeric" : "0010",
                       "Byte" : "0100",
                       "Kanji" : "1000",
                       "ECI" : "0111"}
     
+    if mode == "Alphanumeric":
+        mode_indicator = mode_indicator_dict[mode]
+        encoded_text = encode_alphanumeric(text)
 
-    return qr_version
+    return encoded_text
 
-# print(encode_byte("HELLO WORLD", "Q", "Alphanumeric"))
+print(encode_byte("HELLO WORLD", "Q", "Alphanumeric"))
