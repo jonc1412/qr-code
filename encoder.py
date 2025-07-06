@@ -30,7 +30,7 @@ def encode_alphanumeric(text):
             if len(bin_rep) < 6:
                 bin_rep = bin_rep.zfill(6)
         
-        encoded_data += bin_rep + " "
+        encoded_data += bin_rep
             
     return encoded_data
 
@@ -42,14 +42,11 @@ def encode_byte(text, err_corr, mode):
         if char_length <= values[err_corr]:
             qr_version = version
             break
-
-    # Finding the total number of data bits that are required for this QR code version & error correction level
-    total_bits = ERROR_CORRECTION[qr_version][err_corr] * 8
     
     # First 4 bits of the encoded data
     if mode == "Alphanumeric":
         mode_indicator = MODE_INDICATOR[mode]
-        encoded_text = mode_indicator + " "
+        encoded_text = mode_indicator
 
     # Finding the # of bits required to encode the character length of the text
     for version, bit_count in CHAR_COUNT_INDICATOR_BITS[mode].items():
@@ -57,8 +54,28 @@ def encode_byte(text, err_corr, mode):
             char_count_bit_len = bit_count
             break
 
-    encoded_text += bin(char_length)[2:].zfill(char_count_bit_len) + " "
+    encoded_text += bin(char_length)[2:].zfill(char_count_bit_len)
     encoded_text += encode_alphanumeric(text)
+
+    # Adding terminator bits as necessary
+    # Finding the total number of data bits that are required for this QR code version & error correction level
+    total_bits = ERROR_CORRECTION[qr_version][err_corr] * 8
+    if total_bits - len(encoded_text) < 4:
+        encoded_text += "0" * (total_bits - len(encoded_text))
+    else:
+        encoded_text += "0" * 4
+
+    # Addding pad bytes if the length of the encoded_text is not a multiple of 8
+    encoded_text += "0" * (8 - (len(encoded_text) % 8))
+
+    # Adding pad bytes if the length of the encoded_text does not fill max capacity
+    # 11101100 00010001 is the specific set of bytes that must be added as pad bytes
+    qr_code_req_bits = ERROR_CORRECTION[qr_version][err_corr] * 8
+    for i in range((qr_code_req_bits - len(encoded_text)) // 8):
+        if i % 2 == 0:
+            encoded_text += "11101100"
+        else:
+            encoded_text += "00010001"
 
     return encoded_text
 
