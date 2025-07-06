@@ -1,17 +1,5 @@
 import pandas as pd
-
-# Table contains the corresponding alphanumeric values of the characters
-qr_alphanumeric_table = {
-    '0': 0,  '1': 1,  '2': 2,  '3': 3,  '4': 4,
-    '5': 5,  '6': 6,  '7': 7,  '8': 8,  '9': 9,
-    'A': 10, 'B': 11, 'C': 12, 'D': 13, 'E': 14,
-    'F': 15, 'G': 16, 'H': 17, 'I': 18, 'J': 19,
-    'K': 20, 'L': 21, 'M': 22, 'N': 23, 'O': 24,
-    'P': 25, 'Q': 26, 'R': 27, 'S': 28, 'T': 29,
-    'U': 30, 'V': 31, 'W': 32, 'X': 33, 'Y': 34,
-    'Z': 35, ' ': 36, '$': 37, '%': 38, '*': 39,
-    '+': 40, '-': 41, '.': 42, '/': 43, ':': 44    
-}
+from constants import ALPHANUMERIC_CAPACITY, ALPHANUMERIC_TABLE, MODE_INDICATOR, ERROR_CORRECTION, CHAR_COUNT_INDICATOR_BITS
 
 # Function that generates the binary encoded data of the alphanumeric text
 def encode_alphanumeric(text):
@@ -22,8 +10,8 @@ def encode_alphanumeric(text):
     for i in range(0, text_len, 2):
         # When not the last character
         if i != text_len - 1:
-            first_char_val = qr_alphanumeric_table[text[i]]
-            second_char_val = qr_alphanumeric_table[text[i+1]]
+            first_char_val = ALPHANUMERIC_TABLE[text[i]]
+            second_char_val = ALPHANUMERIC_TABLE[text[i+1]]
 
             # Formula for finding the number representation for each pair of characters
             num_rep = first_char_val * 45 + second_char_val
@@ -31,48 +19,46 @@ def encode_alphanumeric(text):
 
             # Pad the left with 0s to get a 11-bit binary string
             if len(bin_rep) < 11:
-                bin_rep = ("0" * (11 - len(bin_rep))) + bin_rep
+                bin_rep = bin_rep.zfill(11)
         # When last character
         else:
             # Last character does not need any special calculations
-            num_rep = qr_alphanumeric_table[text[i]]
+            num_rep = ALPHANUMERIC_TABLE[text[i]]
             bin_rep = bin(num_rep)[2:]
 
             # Pad the left with 0s to get a 6-bit binary string
             if len(bin_rep) < 6:
-                bin_rep = ("0" * (6 - len(bin_rep))) + bin_rep
+                bin_rep = bin_rep.zfill(6)
         
-        encoded_data += bin_rep
+        encoded_data += bin_rep + " "
             
     return encoded_data
 
 def encode_byte(text, err_corr, mode):
-    # Getting the DataFrame for the Character Capacity table for alphanumeric values
-    # In the future, may expand to include other data types (e.g. numeric, binary, kanji)
-    alpha_capacity_file_path = "lookup_tables/alphanumeric_capacity.csv"
-    alpha_capacity_df = pd.read_csv(alpha_capacity_file_path)
-    alpha_capacity_df = alpha_capacity_df.filter(items=["Version", err_corr])
-
     char_length = len(text)
     
-    # Finding the best QR code version for the text based on size
-    qr_version = alpha_capacity_df.loc[alpha_capacity_df[err_corr] >= char_length, "Version"].iloc[0]
+    # Hard coded for Alphanumeric values, NEED TO FIX LATER
+    for version, values in ALPHANUMERIC_CAPACITY.items():
+        if char_length <= values[err_corr]:
+            qr_version = version
+            break
 
-    error_correction_file_path = "lookup_tables/error_correction.csv"
-    error_correction_df = pd.read_csv(error_correction_file_path)
-    total_data_codewords = error_correction_df[error_correction_df["Version and EC Level"] == f'{qr_version}-{err_corr}']["Data Codewords"].values[0]
-    total_bits = total_data_codewords * 8
-
-    # The mode indicator for alphanumeric values
-    mode_indicator_dict = {"Numeric" : "0001",
-                      "Alphanumeric" : "0010",
-                      "Byte" : "0100",
-                      "Kanji" : "1000",
-                      "ECI" : "0111"}
+    # Finding the total number of data bits that are required for this QR code version & error correction level
+    total_bits = ERROR_CORRECTION[qr_version][err_corr] * 8
     
+    # First 4 bits of the encoded data
     if mode == "Alphanumeric":
-        mode_indicator = mode_indicator_dict[mode]
-        encoded_text = encode_alphanumeric(text)
+        mode_indicator = MODE_INDICATOR[mode]
+        encoded_text = mode_indicator + " "
+
+    # Finding the # of bits required to encode the character length of the text
+    for version, bit_count in CHAR_COUNT_INDICATOR_BITS[mode].items():
+        if qr_version <= version:
+            char_count_bit_len = bit_count
+            break
+
+    encoded_text += bin(char_length)[2:].zfill(char_count_bit_len) + " "
+    encoded_text += encode_alphanumeric(text)
 
     return encoded_text
 
