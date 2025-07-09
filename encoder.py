@@ -1,4 +1,13 @@
-from constants import ALPHANUMERIC_CAPACITY, ALPHANUMERIC_TABLE, MODE_INDICATOR, ERROR_CORRECTION, CHAR_COUNT_INDICATOR_BITS
+from constants import QR_CAPACITY, ALPHANUMERIC_TABLE, MODE_INDICATOR, ERROR_CORRECTION, CHAR_COUNT_INDICATOR_BITS
+
+# Returns the QR code version based on number of characters and level of error correction
+def get_version(mode, char_length, err_corr):
+    for version, value in QR_CAPACITY.items():
+        if char_length <= value[err_corr][mode]:
+            qr_version = version
+            break
+
+    return qr_version
 
 # Function that generates the binary encoded data of the alphanumeric text
 def encode_alphanumeric(text):
@@ -33,19 +42,13 @@ def encode_alphanumeric(text):
             
     return encoded_data
 
-def encode_byte(text, err_corr, mode):
+def encode_byte(text, mode, err_corr):
     char_length = len(text)
     
-    # Hard coded for Alphanumeric values, NEED TO FIX LATER
-    for version, values in ALPHANUMERIC_CAPACITY.items():
-        if char_length <= values[err_corr]:
-            qr_version = version
-            break
+    qr_version = get_version(mode, char_length, err_corr)
     
-    # First 4 bits of the encoded data
-    if mode == "Alphanumeric":
-        mode_indicator = MODE_INDICATOR[mode]
-        encoded_text = mode_indicator
+    # First 4 bits of the encoded data based on mode
+    encoded_text = MODE_INDICATOR[mode]
 
     # Finding the # of bits required to encode the character length of the text
     for version, bit_count in CHAR_COUNT_INDICATOR_BITS[mode].items():
