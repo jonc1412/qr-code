@@ -1,4 +1,3 @@
-import pandas as pd
 from constants import ALPHANUMERIC_CAPACITY, ALPHANUMERIC_TABLE, MODE_INDICATOR, ERROR_CORRECTION, CHAR_COUNT_INDICATOR_BITS
 
 # Function that generates the binary encoded data of the alphanumeric text
@@ -59,7 +58,7 @@ def encode_byte(text, err_corr, mode):
 
     # Adding terminator bits as necessary
     # Finding the total number of data bits that are required for this QR code version & error correction level
-    total_bits = ERROR_CORRECTION[qr_version][err_corr] * 8
+    total_bits = ERROR_CORRECTION[f'{qr_version}-{err_corr}']["total_data_codewords"] * 8
     if total_bits - len(encoded_text) < 4:
         encoded_text += "0" * (total_bits - len(encoded_text))
     else:
@@ -70,13 +69,10 @@ def encode_byte(text, err_corr, mode):
 
     # Adding pad bytes if the length of the encoded_text does not fill max capacity
     # 11101100 00010001 is the specific set of bytes that must be added as pad bytes
-    qr_code_req_bits = ERROR_CORRECTION[qr_version][err_corr] * 8
-    for i in range((qr_code_req_bits - len(encoded_text)) // 8):
+    for i in range((total_bits - len(encoded_text)) // 8):
         if i % 2 == 0:
             encoded_text += "11101100"
         else:
             encoded_text += "00010001"
 
     return encoded_text
-
-print(encode_byte("HELLO WORLD", "Q", "Alphanumeric"))
