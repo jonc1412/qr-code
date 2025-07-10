@@ -1,6 +1,7 @@
-from encoder import ERROR_CORRECTION
+from constants import ERROR_CORRECTION
+from encoder import encode_data
 
-def split_codewords(data, qr_version, err_corr):
+def split_codewords(data, qr_version , err_corr):
     num_blocks_group1 = ERROR_CORRECTION[f'{qr_version}-{err_corr}']["num_blocks_group1"]
     num_codewords_group1 = ERROR_CORRECTION[f'{qr_version}-{err_corr}']["data_codewords_group1"]
     num_blocks_group2 = ERROR_CORRECTION[f'{qr_version}-{err_corr}']["num_blocks_group2"]
@@ -8,7 +9,7 @@ def split_codewords(data, qr_version, err_corr):
 
     print(f'Number of blocks in group 1: {num_blocks_group1} with {num_codewords_group1} codewords')
     print(f'Number of blocks in group 2: {num_blocks_group2} with {num_codewords_group2} codewords')
-    print(f'The total number of codeword blocks: {num_blocks_group1 * num_codewords_group1 + num_blocks_group2 * num_codewords_group2}')
+    print(f'The total number of codeword blocks: {num_blocks_group1 * num_codewords_group1 + num_blocks_group2 * num_codewords_group2}\n\n')
 
     group1_dict = dict()
 
@@ -41,7 +42,6 @@ def split_codewords(data, qr_version, err_corr):
                 codeword_start_index += 8
                 codeword_final_index += 8
 
-    print(group2_dict)
+        print(group2_dict)
 
-
-print(split_codewords("HELLO WORLD", 1, "M"))
+print(split_codewords(encode_data("HELLO WORLD", "Alphanumeric", "M"), 1, "M"))
