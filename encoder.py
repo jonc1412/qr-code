@@ -42,7 +42,7 @@ def encode_alphanumeric(text):
             
     return encoded_data
 
-def encode_byte(text, mode, err_corr):
+def encode_data(text, mode, err_corr):
     char_length = len(text)
     
     qr_version = get_version(mode, char_length, err_corr)
