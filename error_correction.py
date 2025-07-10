@@ -33,7 +33,7 @@ def split_codewords(data : str, qr_version : int, err_corr : str):
         for block_num in range(num_blocks_group2):
             split_dict[2][block_num+1] = []
 
-            for j in range(num_codewords_group2):
+            for codeword_num in range(num_codewords_group2):
                 current_codeword = data[codeword_start_index:codeword_final_index]
                 split_dict[2][block_num+1].append(current_codeword)
 
@@ -42,8 +42,23 @@ def split_codewords(data : str, qr_version : int, err_corr : str):
 
     return split_dict
 
-# def generate_message_polynomial(codeword_dict):
-#     message_polynomial = []
+def get_num_list(binary_list : list) -> list:
+    num_list = []
 
-#     for group, codeword in codeword_dict:
-#         for i in range(len(codeword)):
+    for codeword in binary_list:
+        num_list.append(int(codeword, 2))
+    
+    num_list.reverse()
+
+    return num_list
+
+def generate_message_polynomial(data_dict : dict):
+    message_polynomial = dict()
+
+    for group_num, block_codewords in data_dict.items():
+        message_polynomial[group_num] = dict()
+
+        for block_num, codeword_list in block_codewords.items():
+            message_polynomial[group_num][block_num] = get_num_list(codeword_list)
+
+    return message_polynomial
