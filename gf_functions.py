@@ -1,7 +1,3 @@
-import galois
-
-GF256 = galois.GF(2**8)
-
 # Most common irreducible polynomial of degree 8 (commonly used for QR codes)
 irreducible_poly = 0x11D
 
