@@ -1,5 +1,5 @@
 import galois
-from gf_functions import *
+from src import add_sub, mult, div
 
 GF256 = galois.GF(2**8)
 
