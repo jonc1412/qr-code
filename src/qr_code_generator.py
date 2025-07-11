@@ -1,5 +1,4 @@
-from encoder import *
-from error_correction import *
+from src import *
 
 data = "HELLO WORLD"
 error_correction_level = "M"
