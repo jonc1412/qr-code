@@ -1,4 +1,4 @@
-from constants import ERROR_CORRECTION
+from .constants import ERROR_CORRECTION
 
 def split_codewords(data : str, qr_version : int, err_corr : str):
     num_blocks_group1 = ERROR_CORRECTION[f'{qr_version}-{err_corr}']["num_blocks_group1"]

@@ -1,4 +1,4 @@
-from constants import *
+from .constants import QR_CAPACITY, ALPHANUMERIC_TABLE, MODE_INDICATOR, CHAR_COUNT_INDICATOR_BITS, ERROR_CORRECTION
 
 # Returns the QR code version based on number of characters and level of error correction
 def get_version(mode, char_length, err_corr):
