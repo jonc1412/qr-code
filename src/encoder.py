@@ -1,4 +1,4 @@
-from src import *
+from constants import *
 
 # Returns the QR code version based on number of characters and level of error correction
 def get_version(mode, char_length, err_corr):
