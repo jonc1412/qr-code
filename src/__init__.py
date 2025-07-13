@@ -14,6 +14,7 @@ from .constants import (
 )
 from .error_correction import split_codewords, get_num_list, generate_message_polynomial
 from .gf_functions import add_sub, mult, div
+from .poly_functions import poly_mult
 
 __version__ = "0.1.0"
 __author__ = "Jonathan Choi"
