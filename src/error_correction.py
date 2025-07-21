@@ -1,4 +1,6 @@
 from .constants import ERROR_CORRECTION
+from .poly_functions import poly_mult
+from .gf_functions import exp_table
 
 def split_codewords(data : str, qr_version : int, err_corr : str):
     num_blocks_group1 = ERROR_CORRECTION[f'{qr_version}-{err_corr}']["num_blocks_group1"]
@@ -61,3 +63,13 @@ def generate_message_polynomial(data_dict : dict):
             message_polynomial[group_num][block_num] = get_num_list(codeword_list)
 
     return message_polynomial
+
+def generate_generator_polynomial(qr_version : int, err_corr : str) -> list[int]:
+    codewords_count = ERROR_CORRECTION[f'{qr_version}-{err_corr}']['ec_codewords_per_block']
+    gen_poly = [1]
+    print(codewords_count)
+
+    for i in range(codewords_count):
+        gen_poly = poly_mult(gen_poly, [1, exp_table[i]])
+    
+    return gen_poly
