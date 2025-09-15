@@ -1,5 +1,5 @@
 import galois
-from src import add_sub, mult, div
+from qr_code.gf_functions import add_sub, mult, div
 
 GF256 = galois.GF(2**8)
 

@@ -1,4 +1,4 @@
-from src.encoder import get_version, encode_alphanumeric, encode_data
+from qr_code.encoder import get_version, encode_alphanumeric, encode_data
 
 def test_get_version():
     assert get_version("Alphanumeric", len("HELLO WORLD"), "Q") == 1
