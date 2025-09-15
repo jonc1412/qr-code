@@ -73,3 +73,5 @@ def generate_generator_polynomial(qr_version : int, err_corr : str) -> list[int]
         gen_poly = poly_mult(gen_poly, [1, exp_table[i]])
     
     return gen_poly
+
+print(generate_generator_polynomial(1, "M"))
